@@ -86,90 +86,6 @@ namespace FTLShipEdit
                     wep4.Items.Add(wep);
                 }
 
-            /*
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.ConformanceLevel = ConformanceLevel.Fragment;
-            settings.ValidationType = ValidationType.None;
-            settings.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
-            
-            settings.IgnoreComments = true;
-            settings.IgnoreWhitespace = true;
-            string xmlFilePath = openShipDia.FileName;
-            var lines = new List<string>();
-
-            using (var fileStream = File.Open(xmlFilePath, FileMode.Open, FileAccess.Read))
-            {
-
-                using (var reader = new StreamReader(fileStream))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                        lines.Add(line);
-                }
-
-                var i = lines.FindIndex(s => s.StartsWith("<?xml"));
-                var xmlLine = lines[i];
-                lines.RemoveAt(i);
-                lines.Insert(0, xmlLine);
-                lines.Insert(1, "<data>");
-                lines.Insert(lines.Count, "</data>");
-
-                for(int s=0; s < lines.Count; s++)
-                {
-                    lines[s] = lines[s].Replace("<title>", "<type>");
-                    lines[s] = lines[s].Replace("</title>", "</type>");
-                    lines[s] = lines[s].Replace("</title>", "</type>");
-                    lines[s] = lines[s].Replace("-->", "#-[]X>");
-                    lines[s] = lines[s].Replace("--", "");
-                    lines[s] = lines[s].Replace("<!", "<!--");
-                    lines[s] = lines[s].Replace("#-[]X>","-->");
-                }
-            }
-
-            
-            //using (var fileStream = File.Open(xmlFilePath, FileMode.Truncate, FileAccess.Write))
-            //{
-
-            MemoryStream fileStreamy = new MemoryStream();
-                var writer = new StreamWriter(fileStreamy);
-               // {
-                    foreach (var line in lines)
-                        writer.Write(line);
-
-                    writer.Flush();
-               // }
-            //}
-                    fileStreamy.Position = 0;
-
-                    XmlDocument doc = new XmlDocument();
-                    doc.Load(fileStreamy);
-                    var test = doc.GetElementsByTagName("weaponBlueprint");
-
-                    test = test;
-
-            /*
-
-
-                using (XmlReader reader = XmlReader.Create(fileStreamy, settings))
-            {
-                while (reader.Read())
-                {
-                    while (reader.MoveToElement("weaponBlueprint"))
-                    {
-                        WeaponBlueprints tempWep = new WeaponBlueprints();
-                        tempWep.name = (reader.GetAttribute("name"));
-                        tempWep.type = reader.ReadElementContentAsString("type", "");
-                        tempWep.title = reader.ReadElementContentAsString("title", "");
-                        tempWep.shortname = reader.ReadElementContentAsString("short", "");
-                        tempWep.desc = reader.ReadElementContentAsString("desc", "");
-                        weapons.Add(tempWep);
-                    }
-
-
-                }
-            }*/
-
-            
             
         }
 
@@ -192,19 +108,7 @@ namespace FTLShipEdit
         {
 
         }
-        /*
-            roomFuncs.Add(new RoomFunc("pilot", new Texture("img/GUI/roomfuncs/s_pilot_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("doors", new Texture("img/GUI/roomfuncs/s_doors_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("sensors", new Texture("img/GUI/roomfuncs/s_sensors_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("oxygen", new Texture("img/GUI/roomfuncs/s_oxygen_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("engines", new Texture("img/GUI/roomfuncs/s_engines_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("shields", new Texture("img/GUI/roomfuncs/s_shields_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("weapons", new Texture("img/GUI/roomfuncs/s_weapons_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("drones", new Texture("img/GUI/roomfuncs/s_drones_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("medbay", new Texture("img/GUI/roomfuncs/s_medbay_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("teleporter", new Texture("img/GUI/roomfuncs/s_teleporter_overlay.png"), null));
-            roomFuncs.Add(new RoomFunc("cloaking", new Texture("img/GUI/roomfuncs/s_cloaking_overlay.png"), null));
-        */
+
         public void UpdateScreen()
         {
             tbClass.Text = Game.ship.className;

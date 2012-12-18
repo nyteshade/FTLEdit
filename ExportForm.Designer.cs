@@ -127,23 +127,23 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(15, 366);
+            this.label2.Location = new System.Drawing.Point(1, 359);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(429, 78);
             this.label2.TabIndex = 30;
             this.label2.Text = resources.GetString("label2.Text");
             // 
-            // Exportform
+            // ExportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(442, 463);
+            this.ClientSize = new System.Drawing.Size(446, 463);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.label1);
-            this.Name = "Exportform";
+            this.Name = "ExportForm";
             this.Text = "Export Ship!";
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);

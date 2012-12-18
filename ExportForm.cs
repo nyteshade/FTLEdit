@@ -30,10 +30,10 @@ namespace FTLShipEdit
             dia.Filter = "Layout XML file (*.xml)|*.xml";
             dia.DefaultExt = ".xml";
             dia.FileName = "shipname.xml";
-            dia.Title = "Save blueprint xml as...";
+            dia.Title = "Save layout xml as...";
             dia.ShowDialog();
 
-            Game.game.ExportBlueprintXML(dia.FileName, append: false);
+            Game.game.ExportLayoutXML(dia.FileName);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -49,6 +49,7 @@ namespace FTLShipEdit
             Directory.CreateDirectory(Path.Combine(outputFolder, "data"));
 
             Game.game.ExportLayoutTxt(Path.Combine(outputFolder, "data\\" + Game.ship.layout + ".txt"));
+            Game.game.ExportLayoutXML(Path.Combine(outputFolder, "data\\" + Game.ship.layout + ".xml"));
             Game.game.ExportBlueprintXML(Path.Combine(outputFolder, "data\\" + "blueprints.xml.append"), append: true);
 
             Ionic.Zip.ZipFile zip = new Ionic.Zip.ZipFile(Path.Combine(outputFolder, Game.ship.name + string.Format("-{0:yyyy-MM-dd_hh-mm-ss}", DateTime.Now) + ".ftl"));

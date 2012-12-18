@@ -29,81 +29,13 @@ namespace FTLShipEdit
 
         private void button5_Click(object sender, EventArgs e)
         {
-            // Would you like to load a custom blueprints.xml, to load weapons etc from? (Not your ship)
-
-            //DialogResult result1 = MessageBox.Show("Would you like to load a custom blueprints.xml to load weapons, etc from, or load the default one?",
-           // "Load custom blueprints.xml",MessageBoxButtons.YesNo);
-            SelectShipForm selectShipForm = new SelectShipForm();
-
-            // Select a layout txt
-
-
-            OpenFileDialog openShipDia = new OpenFileDialog();
-
-
-            openShipDia = new OpenFileDialog();
-            openShipDia.DefaultExt = ".txt";
-            openShipDia.Filter = "Text files (*.txt)|*.txt|All files|*.*";
-            openShipDia.ShowDialog();
-
-            Game.game.ImportLayout(openShipDia.FileName);
-
-            openShipDia.DefaultExt = ".xml";
-            openShipDia.Filter = "XML ship file (*.xml)|*.xml|All files|*.*";
-            openShipDia.ShowDialog();
-            Game.game.ImportXML(openShipDia.FileName);
-
-            /*if (result1 == System.Windows.Forms.DialogResult.Yes)
+            SelectShipForm selectShipForm = new SelectShipForm("modeb");
+            if (selectShipForm.ShowDialog() != System.Windows.Forms.DialogResult.Cancel)
             {
-                // Open file dialog
-
+                this.DialogResult = System.Windows.Forms.DialogResult.OK;
+                this.Close();
             }
-            else
-            {
-                // Load default blueprints file
-                //Game.game.ImportShip
-                //selectShipForm.LoadShips(OptionsForm.dataPath + "\\data\\blueprints.xml");
-            }*/
-
-            // Please select the xml file with your ship in
-            /*
-            OpenFileDialog openShipDia = new OpenFileDialog();
-            openShipDia.DefaultExt = ".xml";
-            openShipDia.Filter = "XML ship file (*.xml)|*.xml|All files|*.*";
-
-            openShipDia.ShowDialog();
-            selectShipForm.LoadShips(openShipDia.FileName);
-            selectShipForm.lastPath = OptionsForm.dataPath + "\\data\\blueprints.xml";
-            openShipDia.Dispose();
-
-
-            FolderBrowserDialog selectDataFolder = new FolderBrowserDialog();
-            selectDataFolder.Description = "Please select the data folder for the custom ship";
-            selectDataFolder.ShowDialog();
-            OptionsForm.dataPath = selectDataFolder.SelectedPath;
-            selectDataFolder.Description = "Please select the resources folder for the custom ship";
-            selectDataFolder.ShowDialog();
-            OptionsForm.resPath = selectDataFolder.SelectedPath;
-            selectShipForm.Show();
-             * */
-            /*
-            OpenFileDialog openShipDia = new OpenFileDialog();
-            openShipDia.DefaultExt = ".xml";
-            openShipDia.Filter = "XML ship file (*.xml)|*.xml|All files|*.*";
-            openShipDia.ShowDialog();
-
-            
-            openShipDia = new OpenFileDialog();
-            openShipDia.DefaultExt = ".txt";
-            openShipDia.Filter = "Text files (*.txt)|*.txt|All files|*.*";
-            openShipDia.ShowDialog();
-            */
-            // Please select your ship
-
-            // 
-
-            
-
+            return;
         }
 
         private void button4_Click(object sender, EventArgs e)

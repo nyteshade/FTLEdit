@@ -12,9 +12,20 @@ namespace FTLShipEdit
 {
     public partial class SelectShipForm : Form
     {
+        bool modeCustom = false;
         public SelectShipForm()
         {
             InitializeComponent();
+        }
+        public SelectShipForm(string mode)
+        {
+            InitializeComponent();
+
+            if (mode == "modeb")
+            {
+                modeCustom = true;
+
+            }
         }
 
         class ShipInfo
@@ -36,7 +47,7 @@ namespace FTLShipEdit
         }
         //OpenFileDialog openShipDia = new OpenFileDialog();
         public string lastPath;
-        public void LoadShips(string file)
+        public void LoadShips(string file,bool loadShips = true)
         {
             lastPath = file;
             /*
@@ -121,14 +132,9 @@ namespace FTLShipEdit
         {
 
             HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
-
-            // There are various options, set as needed
             htmlDoc.OptionFixNestedTags = true;
 
-            // filePath is a path to a file containing the html
             htmlDoc.Load(path);//OptionsForm.dataPath + "\\data\\blueprints.xml");
-
-            // Use:  htmlDoc.LoadXML(xmlString);  to load from a string
 
             // ParseErrors is an ArrayList containing any errors from the Load statement
             if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Count() > 0)
@@ -155,7 +161,7 @@ namespace FTLShipEdit
                             continue;
 
 
-                        tempWep.type = node.SelectSingleNode(".//type").InnerText;//reader.ReadElementContentAsString("type", "");
+                        tempWep.type = node.SelectSingleNode(".//type").InnerText;
                         tempWep.title = node.SelectSingleNode(".//title").InnerText;
                         if (node.SelectSingleNode(".//short") != null)
                             tempWep.shortname = node.SelectSingleNode(".//short").InnerText;
@@ -170,7 +176,7 @@ namespace FTLShipEdit
 
             if (htmlDoc.DocumentNode != null)
             {
-                HtmlNodeCollection augs = htmlDoc.DocumentNode.SelectNodes("//augblueprint");// SelectSingleNode("//body");
+                HtmlNodeCollection augs = htmlDoc.DocumentNode.SelectNodes("//augblueprint");
 
                 if (augs != null)
                 {
@@ -194,7 +200,7 @@ namespace FTLShipEdit
             }
             if (htmlDoc.DocumentNode != null)
             {
-                HtmlNodeCollection drones = htmlDoc.DocumentNode.SelectNodes("//droneblueprint");// SelectSingleNode("//body");
+                HtmlNodeCollection drones = htmlDoc.DocumentNode.SelectNodes("//droneblueprint");
 
                 if (drones != null)
                 {
@@ -243,8 +249,13 @@ namespace FTLShipEdit
             }
 
         }
+
+
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
+            if (listBox1.SelectedItem == null)
+                return;
+
             LoadBlueprints(lastPath);
 
             HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
@@ -477,7 +488,23 @@ namespace FTLShipEdit
         private void Form1_Load(object sender, EventArgs e)
         {
             listBox1.Items.Clear();
-            LoadShips(OptionsForm.dataPath + "\\data\\blueprints.xml");
+
+            if (modeCustom == false)
+                LoadShips(OptionsForm.dataPath + "\\data\\blueprints.xml");
+            else
+            {
+
+                LoadBlueprints(OptionsForm.dataPath + "\\data\\blueprints.xml");
+                OpenFileDialog openShipDia = new OpenFileDialog();
+                openShipDia.Title = "Select the xml.append for your ship!";
+                openShipDia.DefaultExt = ".xml";
+                openShipDia.Filter = "XML ship file (*.xml;*.xml.append)|*.xml;*.xml.append|All files|*.*";
+
+                openShipDia.ShowDialog();
+
+                LoadShips(openShipDia.FileName);
+                openShipDia.Dispose();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -495,7 +522,7 @@ namespace FTLShipEdit
         {
             OpenFileDialog openShipDia = new OpenFileDialog();
             openShipDia.DefaultExt = ".xml";
-            openShipDia.Filter = "XML ship file (*.xml)|*.xml|All files|*.*";
+            openShipDia.Filter = "XML ship file (*.xml;*.xml.append)|*.xml;*.xml.append|All files|*.*";
             
             openShipDia.ShowDialog();
 

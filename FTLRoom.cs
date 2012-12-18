@@ -103,10 +103,7 @@ namespace FTLShipEdit
         
         
         public bool WasClicked(Vector2f pos)
-        {    // pos /= 35;
-            //return ((pos.X * 35 + 7 >= position.X && pos.X * 35 + 7 < position.X + size.X) && (pos.Y * 35 + 7 >= position.Y && pos.Y * 35 + 7 < position.Y + size.Y));
-        
-            //pos /= 35;
+        { 
             if (horiz)
             {
                 return ((pos.X >= (position.X * 35 + 7) && pos.X < (position.X * 35 + 7) + size.X) && (pos.Y >= (position.Y * 35 - 2) && pos.Y < (position.Y * 35 - 2) + size.Y));

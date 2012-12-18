@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml;
+//using System.Drawing;
 using System.Windows.Forms;
 using SFML;
 using SFML.Graphics;
 using SFML.Window;
-
+//using Gwen;
 namespace FTLShipEdit
 {
 
@@ -19,6 +20,8 @@ namespace FTLShipEdit
     }
     public class GuiButton
     {
+
+
         public Vector2f pos;
         public Vector2u size;
         public string text;
@@ -187,8 +190,8 @@ namespace FTLShipEdit
         //Sprite AddDoorBtn_s;
         //Sprite LoadBtn_n;
         //Sprite LoadBtn_s;
-        Sprite BaseTex;
-        Sprite FloorTex;
+        public Sprite BaseTex;
+        public Sprite FloorTex;
         public CursorMode cursorMode;
         public static Game game;
         public static Ship ship;
@@ -196,6 +199,7 @@ namespace FTLShipEdit
         List<RoomFunc> roomFuncs;
         public static Vector2f Offset;
         Vector2f bgOffset = new Vector2f(0, 0);
+        Vector2f bgSize = new Vector2f(0, 0);
         int GUIStartX = 670;
         List<FTLRoom> ShipRooms = new List<FTLRoom>();
         List<FTLDoor> ShipDoors = new List<FTLDoor>();
@@ -317,13 +321,13 @@ namespace FTLShipEdit
             btnLoadFloor.Draw(t, false);
             btnOptions.Draw(t, false);
 
-            if(BaseTex != null)
+            if (BaseTex != null)
                 btnToggleBase.Draw(t, drawBase);
             if (FloorTex != null)
                 btnToggleFloor.Draw(t, drawFloor);
 
-            if(BaseTex != null || FloorTex != null)
-            btnMoveBG.Draw(t, cursorMode == CursorMode.PlaceBGCursor || cursorMode == CursorMode.PlacedBGCursor);
+            if (BaseTex != null || FloorTex != null)
+                btnMoveBG.Draw(t, cursorMode == CursorMode.PlaceBGCursor || cursorMode == CursorMode.PlacedBGCursor);
 
             btnMoveGibs.Draw(t, cursorMode == CursorMode.PlaceGibsCursor || cursorMode == CursorMode.PlacedGibsCursor);
 
@@ -380,19 +384,7 @@ namespace FTLShipEdit
                     t.Draw(temp);
                     temp.Dispose();
                 }
-            /*
-            if (addRoom)
-                AddRoomBtn_s.Draw(t, rs);
-            else
-                AddRoomBtn_n.Draw(t, rs);
-            
-            if (addDoor)
-                AddDoorBtn_s.Draw(t, rs);
-            else
-                AddDoorBtn_n.Draw(t, rs);
-             */
-            //LoadBtn_n.Draw(t, rs);
-            //t.Draw(LoadBtn_n);
+
             ViewOffsetter.Draw(t, rs);
 
             if (cursorMode == CursorMode.AddDoor)
@@ -504,10 +496,10 @@ namespace FTLShipEdit
             string shipPath = Path.Combine(OptionsForm.resPath, "img\\ship\\");
             ShipDoors.Clear();
             ShipRooms.Clear();
-            if(BaseTex != null)
-            BaseTex.Dispose();
-            if(FloorTex != null)
-            FloorTex.Dispose();
+            if (BaseTex != null)
+                BaseTex.Dispose();
+            if (FloorTex != null)
+                FloorTex.Dispose();
             BaseTex = null;
             FloorTex = null;
 
@@ -526,25 +518,54 @@ namespace FTLShipEdit
             }
 
             DialogResult error;
+            string XMLfilePath = Path.Combine(OptionsForm.dataPath, "data\\" + layout + ".xml");
+            string LayoutfilePath = Path.Combine(OptionsForm.dataPath, "data\\" + layout + ".txt");
             do
             {
-                if (!File.Exists(Path.Combine(OptionsForm.dataPath, "data\\" + layout + ".xml")))
+                if (!File.Exists(XMLfilePath))
                 {
-                    error = MessageBox.Show(Path.Combine(OptionsForm.dataPath, "data\\" + layout + ".xml") + " was not found!", "Error", MessageBoxButtons.AbortRetryIgnore);
-
-                    if (error == DialogResult.Abort)
+                    error = MessageBox.Show(XMLfilePath + " was not found! \nWould you like to manually find it?", "Error", MessageBoxButtons.YesNo);
+                    if (error == DialogResult.Yes)
+                    {
+                        // Locate layout txt
+                        OpenFileDialog openShipDia = new OpenFileDialog();
+                        openShipDia.DefaultExt = ".xml";
+                        openShipDia.Filter = "XML ship file (*.xml)|*.xml|All files|*.*";
+                        openShipDia.ShowDialog();
+                        XMLfilePath = openShipDia.FileName;
+                    }
+                    else
                         return;
                 }
                 else
-                {
                     error = DialogResult.OK;
-                }
             }
-            while (error == DialogResult.Retry);
+            while (!File.Exists(XMLfilePath) || error == DialogResult.Retry);
+            do
+            {
+                if (!File.Exists(LayoutfilePath))
+                {
+                    error = MessageBox.Show(LayoutfilePath + " was not found! \nWould you like to manually find it?", "Error", MessageBoxButtons.YesNo);
+                    if (error == DialogResult.Yes)
+                    {
+                        // Locate layout txt
+                        OpenFileDialog openShipDia = new OpenFileDialog();
+                        openShipDia.DefaultExt = ".txt";
+                        openShipDia.Filter = ".TXT ship layout file (*.txt)|*.txt|All files|*.*";
+                        openShipDia.ShowDialog();
+                        LayoutfilePath = openShipDia.FileName;
+                    }
+                    else
+                        return;
+                }
+                else
+                    error = DialogResult.OK;
+            }
+            while (!File.Exists(LayoutfilePath) || error == DialogResult.Retry);
 
-            ImportLayout(Path.Combine(OptionsForm.dataPath, "data\\" + layout + ".txt"));
-            ImportXML(Path.Combine(OptionsForm.dataPath,"data\\"+layout+".xml"));
-            
+            ImportLayout(LayoutfilePath);
+            ImportXML(XMLfilePath);
+
 
 
             foreach (RoomFunc room in ship.rooms.Values)
@@ -567,7 +588,7 @@ namespace FTLShipEdit
             settings.ValidationType = ValidationType.None;
 
 
-            
+
 
             using (XmlReader reader = XmlReader.Create(path, settings))
             {
@@ -576,37 +597,40 @@ namespace FTLShipEdit
                     reader.ReadToFollowing("img");
                     int x = Convert.ToInt32(reader.GetAttribute("x"));
                     int y = Convert.ToInt32(reader.GetAttribute("y"));
+                    int w = Convert.ToInt32(reader.GetAttribute("w"));
+                    int h = Convert.ToInt32(reader.GetAttribute("h"));
                     bgOffset = new Vector2f(x, y);
-
+                    bgOffset = new Vector2f(x, y);
+                    bgSize = new Vector2f(w, h);
 
 
                     //if (img != "")
                     //{
-                        if (BaseTex != null)
-                            BaseTex.Position = bgOffset;
-                        if (FloorTex != null)
-                            FloorTex.Position = bgOffset;
-                   // }
+                    if (BaseTex != null)
+                        BaseTex.Position = bgOffset;
+                    if (FloorTex != null)
+                        FloorTex.Position = bgOffset;
+                    // }
                     break;
-                    // Process each node of the fragment,
-                    // possibly using reader.ReadSubtree()
                 }
             }
         }
         public void ImportLayout(string path)
         {
-
             // create a reader and open the file
+            if (path == "")
+                return;
+
             TextReader tr = new StreamReader(path);
 
             string line;
 
             while ((line = tr.ReadLine()) != null)
             {
-                 if (line == "X_OFFSET")
-                Offset.X = Convert.ToInt32(tr.ReadLine());
-                 if (line == "Y_OFFSET")
-                Offset.Y = Convert.ToInt32(tr.ReadLine());
+                if (line == "X_OFFSET")
+                    Offset.X = Convert.ToInt32(tr.ReadLine());
+                if (line == "Y_OFFSET")
+                    Offset.Y = Convert.ToInt32(tr.ReadLine());
 
                 if (line == "ROOM")
                 {
@@ -630,6 +654,8 @@ namespace FTLShipEdit
             }
 
         }
+
+
         public void ImportShip()
         {
 
@@ -658,9 +684,37 @@ namespace FTLShipEdit
 
         }
 
-        public void ExportLayoutTxt(string path)
+        public void ExportLayoutXML(string path)
         {
 
+            if (path == "")
+                return;
+            // create a writer and open the file
+            TextWriter tw = new StreamWriter(path);
+            string imgLine;
+            if (BaseTex != null)
+                imgLine = "<img x=\"" + bgOffset.X + "\" y=\"" + bgOffset.Y + "\" w=\"" + bgSize.X + "\" h=\"" + bgSize.Y + "\"/>";
+            else
+                imgLine = "<img x=\"" + bgOffset.X + "\" y=\"" + bgOffset.Y + "\" w=\"" + bgSize.X + "\" h=\"" + bgSize.Y + "\"/>";
+
+
+            tw.WriteLine(imgLine);
+
+            tw.WriteLine("<weaponMounts>");
+            tw.WriteLine("</weaponMounts>");
+            tw.WriteLine("<explosion>");
+            tw.WriteLine("</explosion>");
+
+            tw.WriteLine();
+            // close the stream
+            tw.Close();
+            tw.Dispose();
+        }
+
+        public void ExportLayoutTxt(string path)
+        {
+            if (path == "")
+                return;
             // create a writer and open the file
             TextWriter tw = new StreamWriter(path);
 
@@ -777,7 +831,7 @@ namespace FTLShipEdit
 
         public void ExportBlueprintXML(string path, bool append)
         {
-            
+
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             settings.IndentChars = "  ";
@@ -785,7 +839,7 @@ namespace FTLShipEdit
             settings.Encoding = new ASCIIEncoding();
             settings.NewLineHandling = NewLineHandling.Replace;
 
-            using (XmlWriter writer = XmlWriter.Create(path,settings))
+            using (XmlWriter writer = XmlWriter.Create(path, settings))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartElement("shipBlueprint"); // <-- Important root element
@@ -805,15 +859,15 @@ namespace FTLShipEdit
                     writer.WriteAttributeString("img", "room_pilot");
                     writer.WriteEndElement();
                 }
-                
+
                 if (ship.rooms["doors"].location != null)
                 {
-                writer.WriteStartElement("doors");
-                writer.WriteAttributeString("power", ship.rooms["doors"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["doors"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["doors"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_doors");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("doors");
+                    writer.WriteAttributeString("power", ship.rooms["doors"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["doors"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["doors"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_doors");
+                    writer.WriteEndElement();
                 }
                 if (ship.rooms["sensors"].location != null)
                 {
@@ -826,75 +880,75 @@ namespace FTLShipEdit
                 }
                 if (ship.rooms["medbay"].location != null)
                 {
-                writer.WriteStartElement("medbay");
-                writer.WriteAttributeString("power", ship.rooms["medbay"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["medbay"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["medbay"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_medbay");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("medbay");
+                    writer.WriteAttributeString("power", ship.rooms["medbay"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["medbay"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["medbay"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_medbay");
+                    writer.WriteEndElement();
                 }
                 if (ship.rooms["oxygen"].location != null)
                 {
-                writer.WriteStartElement("oxygen");
-                writer.WriteAttributeString("power", ship.rooms["oxygen"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["oxygen"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["oxygen"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_oxygen");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("oxygen");
+                    writer.WriteAttributeString("power", ship.rooms["oxygen"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["oxygen"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["oxygen"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_oxygen");
+                    writer.WriteEndElement();
                 }
                 if (ship.rooms["shields"].location != null)
                 {
-                writer.WriteStartElement("shields");
-                writer.WriteAttributeString("power", ship.rooms["shields"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["shields"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["shields"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_shields");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("shields");
+                    writer.WriteAttributeString("power", ship.rooms["shields"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["shields"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["shields"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_shields");
+                    writer.WriteEndElement();
                 }
                 if (ship.rooms["engines"].location != null)
                 {
-                writer.WriteStartElement("engines");
-                writer.WriteAttributeString("power", ship.rooms["engines"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["engines"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["engines"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_engines");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("engines");
+                    writer.WriteAttributeString("power", ship.rooms["engines"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["engines"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["engines"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_engines");
+                    writer.WriteEndElement();
                 }
                 if (ship.rooms["weapons"].location != null)
                 {
-                writer.WriteStartElement("weapons");
-                writer.WriteAttributeString("power", ship.rooms["weapons"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["weapons"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["weapons"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_weapons");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("weapons");
+                    writer.WriteAttributeString("power", ship.rooms["weapons"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["weapons"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["weapons"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_weapons");
+                    writer.WriteEndElement();
                 }
                 if (ship.rooms["drones"].location != null)
                 {
-                writer.WriteStartElement("drones");
-                writer.WriteAttributeString("power", ship.rooms["drones"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["drones"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["drones"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_drones");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("drones");
+                    writer.WriteAttributeString("power", ship.rooms["drones"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["drones"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["drones"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_drones");
+                    writer.WriteEndElement();
                 }
                 if (ship.rooms["teleporter"].location != null)
                 {
-                writer.WriteStartElement("teleporter");
-                writer.WriteAttributeString("power", ship.rooms["teleporter"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["teleporter"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["teleporter"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_teleporter");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("teleporter");
+                    writer.WriteAttributeString("power", ship.rooms["teleporter"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["teleporter"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["teleporter"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_teleporter");
+                    writer.WriteEndElement();
                 }
                 if (ship.rooms["cloaking"].location != null)
                 {
-                writer.WriteStartElement("cloaking");
-                writer.WriteAttributeString("power", ship.rooms["cloaking"].power.ToString());
-                writer.WriteAttributeString("room", ship.rooms["cloaking"].location.id.ToString());
-                writer.WriteAttributeString("start", ship.rooms["cloaking"].start.ToString().ToLower());
-                writer.WriteAttributeString("img", "room_cloaking");
-                writer.WriteEndElement();
+                    writer.WriteStartElement("cloaking");
+                    writer.WriteAttributeString("power", ship.rooms["cloaking"].power.ToString());
+                    writer.WriteAttributeString("room", ship.rooms["cloaking"].location.id.ToString());
+                    writer.WriteAttributeString("start", ship.rooms["cloaking"].start.ToString().ToLower());
+                    writer.WriteAttributeString("img", "room_cloaking");
+                    writer.WriteEndElement();
                 }
                 writer.WriteEndElement();      // End systems list    
 
@@ -1014,13 +1068,14 @@ namespace FTLShipEdit
 
                 writer.WriteEndElement();              // <-- Closes it
                 writer.WriteEndDocument();
-        }
+            }
         }
 
         public void ExportShip()
         {
             ExportLayoutTxt("ship.txt");
-            ExportBlueprintXML("blueprint.xml",append:false);
+            ExportLayoutXML("ship.xml");
+            ExportBlueprintXML("blueprint.xml", append: false);
         }
 
 
@@ -1048,7 +1103,11 @@ namespace FTLShipEdit
 
             if (e.Code == Keyboard.Key.Space)
             {
-                DoorHorizontal = !DoorHorizontal;
+
+                if (selectedDoor != null)
+                    selectedDoor.horiz = !selectedDoor.horiz;
+                else
+                    DoorHorizontal = !DoorHorizontal;
 
             }
 
@@ -1200,6 +1259,7 @@ namespace FTLShipEdit
                 if (openTexDia.FileName != "")
                 {
                     BaseTex = new Sprite(new Texture(openTexDia.FileName));
+                    bgSize = new Vector2f(BaseTex.TextureRect.Width, BaseTex.TextureRect.Height);
                     drawBase = true;
                 }
                 openTexDia.Dispose();
@@ -1223,29 +1283,29 @@ namespace FTLShipEdit
                 openTexDia.Dispose();
             }
 
-            if(FloorTex != null || BaseTex != null)
-            if (btnMoveBG.WasClicked(mouseScreenPos))
-            {
-                if (cursorMode == CursorMode.PlacedBGCursor || cursorMode == CursorMode.PlaceBGCursor)
+            if (FloorTex != null || BaseTex != null)
+                if (btnMoveBG.WasClicked(mouseScreenPos))
                 {
-                    cursorMode = CursorMode.None;
+                    if (cursorMode == CursorMode.PlacedBGCursor || cursorMode == CursorMode.PlaceBGCursor)
+                    {
+                        cursorMode = CursorMode.None;
+                    }
+                    else
+                    {
+                        cursorMode = CursorMode.PlaceBGCursor;
+                    }
                 }
-                else
+            if (BaseTex != null)
+                if (btnToggleBase.WasClicked(mouseScreenPos))
                 {
-                    cursorMode = CursorMode.PlaceBGCursor;
+                    drawBase = !drawBase;
                 }
-            }
-            if(BaseTex != null)
-            if (btnToggleBase.WasClicked(mouseScreenPos))
-            {
-                drawBase = !drawBase;
-            }
-            if(FloorTex != null)
-            if (btnToggleFloor.WasClicked(mouseScreenPos))
-            {
-                drawFloor = !drawFloor;
-            }
-            
+            if (FloorTex != null)
+                if (btnToggleFloor.WasClicked(mouseScreenPos))
+                {
+                    drawFloor = !drawFloor;
+                }
+
             if (placeRoomCloaking.WasClicked(mouseScreenPos))
                 setRoom = RoomID.cloaking;
             if (placeRoomDoors.WasClicked(mouseScreenPos))
@@ -1271,13 +1331,7 @@ namespace FTLShipEdit
 
             if (setRoom != RoomID.None)
                 cursorMode = CursorMode.PlacingRoomFunc;
-            /*if (Mouse.GetPosition(Program.app).Y > 0 && Mouse.GetPosition(Program.app).Y < 37)
-                addRoom = true; // Clicked add room;
 
-            else */
-
-            //if (Mouse.GetPosition(Program.app).Y > 37 && Mouse.GetPosition(Program.app).Y < 74)
-            //                        addDoor = true; // Clicked add door;
 
             if (new FloatRect(ViewOffsetter.Position.X, ViewOffsetter.Position.Y, ViewOffsetter.TextureRect.Width, ViewOffsetter.TextureRect.Height).Contains(Mouse.GetPosition(Program.app).X, Mouse.GetPosition(Program.app).Y))
             {
@@ -1310,7 +1364,7 @@ namespace FTLShipEdit
         public void Update()
         {
             Vector2i mouseScreenPos = Mouse.GetPosition(Program.app);
-            Vector2i mouseActualPos = Mouse.GetPosition(Program.app) - new Vector2i((int)Game.Offset.X * 35,(int)Game.Offset.Y * 35);
+            Vector2i mouseActualPos = Mouse.GetPosition(Program.app) - new Vector2i((int)Game.Offset.X * 35, (int)Game.Offset.Y * 35);
 
             switch (cursorMode)
             {
@@ -1337,7 +1391,7 @@ namespace FTLShipEdit
                                     cursorMode = CursorMode.DoorSelected;
                                     selectedDoor.selected = true;
                                     break;
-                                    
+
                                 }
                             }
 
@@ -1349,12 +1403,12 @@ namespace FTLShipEdit
 
                                     if (tempRoom.WasClicked(new Vector2f(mouseActualPos.X, mouseActualPos.Y)))
                                     {
-                                            selectedRoom = tempRoom;
-                                            cursorMode = CursorMode.RoomSelected;
-                                            selectedRoom.selected = true;
-                                            clickedARoom = true;
-                                            break;
-                                        
+                                        selectedRoom = tempRoom;
+                                        cursorMode = CursorMode.RoomSelected;
+                                        selectedRoom.selected = true;
+                                        clickedARoom = true;
+                                        break;
+
                                     }
                                 }
                                 if (clickedARoom == false)
@@ -1465,7 +1519,7 @@ namespace FTLShipEdit
                         if (Mouse.IsButtonPressed(Mouse.Button.Right))
                         {
                             if (selectedRoom != null)
-                            selectedRoom.selected = false;
+                                selectedRoom.selected = false;
                             selectedRoom = null;
                             cursorMode = CursorMode.None;
                         }
@@ -1513,15 +1567,15 @@ namespace FTLShipEdit
                 case CursorMode.PlaceBGCursor:
                     bgOffset = new Vector2f((int)mouseScreenPos.X - Offset.X * 35, (int)mouseScreenPos.Y - Offset.Y * 35);
                     bgOffset -= new Vector2f(BaseTex.TextureRect.Width / 2, BaseTex.TextureRect.Height / 2);
-                    if(Mouse.IsButtonPressed(Mouse.Button.Left) && lastLMBState == false)
+                    if (Mouse.IsButtonPressed(Mouse.Button.Left) && lastLMBState == false)
                     {
                         cursorMode = CursorMode.PlacedBGCursor;
                     }
                     break;
-                case CursorMode.PlacedBGCursor: 
+                case CursorMode.PlacedBGCursor:
                     if (Mouse.IsButtonPressed(Mouse.Button.Left) && lastLMBState == false)
                     {
-                        cursorMode =CursorMode.None;
+                        cursorMode = CursorMode.None;
                     }
                     if (Keyboard.IsKeyPressed(Keyboard.Key.Return))
                     {
