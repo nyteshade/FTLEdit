@@ -38,6 +38,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.button5 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -66,7 +67,7 @@
             // 
             this.button1.Location = new System.Drawing.Point(6, 19);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(366, 81);
+            this.button1.Size = new System.Drawing.Size(240, 81);
             this.button1.TabIndex = 23;
             this.button1.Text = "Export the .ftl package\r\n(For use with GMM)";
             this.button1.UseVisualStyleBackColor = true;
@@ -116,6 +117,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.button5);
             this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Location = new System.Drawing.Point(30, 131);
             this.groupBox2.Name = "groupBox2";
@@ -132,6 +134,16 @@
             this.label2.Size = new System.Drawing.Size(429, 78);
             this.label2.TabIndex = 30;
             this.label2.Text = resources.GetString("label2.Text");
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(252, 19);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(120, 81);
+            this.button5.TabIndex = 24;
+            this.button5.Text = "Export all files\r\nbut dont package\r\n(For manual editing)";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // ExportForm
             // 
@@ -163,5 +175,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button button5;
     }
 }

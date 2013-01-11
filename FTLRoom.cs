@@ -67,7 +67,7 @@ namespace FTLShipEdit
             get
             {
                 RectangleShape tempShape = new RectangleShape(new Vector2f(size.X * 35 - 4, size.Y * 35 - 4));
-                tempShape.Position = new Vector2f(position.X * 35 + 2, position.Y * 35 + 2) + (Game.Offset * 35);
+                tempShape.Position = new Vector2f(position.X * 35 + 2, position.Y * 35 + 2) + (new Vector2f(Game.ship.LayoutData.X_OFFSET, Game.ship.LayoutData.Y_OFFSET) * 35);
                 tempShape.OutlineThickness = 2;
 
                 if (selected)
@@ -123,13 +123,13 @@ namespace FTLShipEdit
                 if (horiz)
                 {
                     tempShape = new RectangleShape(new Vector2f(19, 4));
-                    tempShape.Position = new Vector2f(position.X * 35 + 7, position.Y * 35 - 2) + (Game.Offset * 35);
+                    tempShape.Position = new Vector2f(position.X * 35 + 7, position.Y * 35 - 2) + (new Vector2f(Game.ship.LayoutData.X_OFFSET,Game.ship.LayoutData.Y_OFFSET) * 35);
 
                 }
                 else
                 {
                     tempShape = new RectangleShape(new Vector2f(4, 19));
-                    tempShape.Position = new Vector2f(position.X * 35 - 2, position.Y * 35 + 7) + (Game.Offset * 35);
+                    tempShape.Position = new Vector2f(position.X * 35 - 2, position.Y * 35 + 7) + (new Vector2f(Game.ship.LayoutData.X_OFFSET, Game.ship.LayoutData.Y_OFFSET) * 35);
                 }
 
                 tempShape.OutlineThickness = 1;

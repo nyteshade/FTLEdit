@@ -41,6 +41,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.button5 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -51,7 +52,7 @@
             this.label1.Size = new System.Drawing.Size(362, 26);
             this.label1.TabIndex = 0;
             this.label1.Text = "FTLEdit needs to know where to load files like blueprints.xml from. \r\nFor this, y" +
-                "ou will need an extracted copy of both data.dat and resources.dat";
+    "ou will need an extracted copy of both data.dat and resources.dat";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
@@ -130,7 +131,7 @@
             this.label4.Size = new System.Drawing.Size(380, 60);
             this.label4.TabIndex = 7;
             this.label4.Text = "If you don\'t have an extracted version of these\r\nFTLEdit can do it automatically," +
-                " but you will \r\nneed ftldat installed";
+    " but you will \r\nneed ftldat installed";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button3
@@ -175,8 +176,8 @@
             this.label6.Size = new System.Drawing.Size(397, 39);
             this.label6.TabIndex = 11;
             this.label6.Text = "If the extract files button pops up a couple of cmd windows, but they instantly c" +
-                "lose\r\n something went wrong. You could try manaually extracting them from the cm" +
-                "d line\r\n using ftldat, or try using ";
+    "lose\r\n something went wrong. You could try manaually extracting them from the cm" +
+    "d line\r\n using ftldat, or try using ";
             // 
             // linkLabel1
             // 
@@ -190,12 +191,25 @@
             this.linkLabel1.Text = "FTL UnPacker";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
+            // button5
+            // 
+            this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.button5.Font = new System.Drawing.Font("8bitoperator JVE", 24F);
+            this.button5.Location = new System.Drawing.Point(85, 174);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(201, 34);
+            this.button5.TabIndex = 13;
+            this.button5.Text = "Save Paths";
+            this.button5.UseVisualStyleBackColor = false;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
             // OptionsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(21)))), ((int)(((byte)(23)))), ((int)(((byte)(26)))));
             this.ClientSize = new System.Drawing.Size(405, 447);
+            this.Controls.Add(this.button5);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -233,5 +247,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.Button button5;
     }
 }

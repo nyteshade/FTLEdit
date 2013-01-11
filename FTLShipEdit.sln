@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTLShipEdit", "FTLShipEdit.csproj", "{1DD4BE94-4E9D-43F3-AF13-23D2B485E4F3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1DD4BE94-4E9D-43F3-AF13-23D2B485E4F3}.Debug|x86.ActiveCfg = Debug|x86
+		{1DD4BE94-4E9D-43F3-AF13-23D2B485E4F3}.Debug|x86.Build.0 = Debug|x86
+		{1DD4BE94-4E9D-43F3-AF13-23D2B485E4F3}.Release|x86.ActiveCfg = Release|x86
+		{1DD4BE94-4E9D-43F3-AF13-23D2B485E4F3}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

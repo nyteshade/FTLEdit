@@ -93,6 +93,26 @@ namespace FTLShipEdit
             Game.game.ExportBlueprintXML(dia.FileName, append: false);
         }
 
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (Game.ship.id == null)
+            {
+                throw new InvalidDataException("**** Error! ****\n You have not set a ship ID! Please set one before exporting!!");
+            }
+            string outputFolder = Path.Combine(Application.StartupPath, Game.ship.id);
+            Directory.CreateDirectory(outputFolder);
+            Directory.CreateDirectory(Path.Combine(outputFolder, "img"));
+            Directory.CreateDirectory(Path.Combine(outputFolder, "img\\ship"));
+            Directory.CreateDirectory(Path.Combine(outputFolder, "data"));
+
+            Game.game.ExportLayoutTxt(Path.Combine(outputFolder, "data\\" + Game.ship.layout + ".txt"));
+            Game.game.ExportLayoutXML(Path.Combine(outputFolder, "data\\" + Game.ship.layout + ".xml"));
+            Game.game.ExportBlueprintXML(Path.Combine(outputFolder, "data\\" + "blueprints.xml.append"), append: true);
+
+
+            System.Diagnostics.Process.Start(outputFolder);
+        }
+
 
 
     }

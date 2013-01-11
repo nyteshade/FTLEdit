@@ -126,7 +126,10 @@ namespace FTLShipEdit
             crewZoltan.Text = Game.ship.crewZoltan.ToString();
             crewSlug.Text = Game.ship.crewSlug.ToString();
             crewMantis.Text = Game.ship.crewMantis.ToString();
-            
+
+
+            tbPower.Text = Game.ship.maxPower.ToString();
+            tbHealth.Text = Game.ship.health.ToString();
 
             //tbMissiles.Text = Game.ship.missle
             tbName.Text = Game.ship.name;
@@ -499,6 +502,16 @@ namespace FTLShipEdit
         {
             ExportForm export = new ExportForm();
             export.ShowDialog();
+        }
+
+        private void tbHealth_TextChanged(object sender, EventArgs e)
+        {
+            Game.ship.health = Convert.ToInt32(tbHealth.Text);
+        }
+
+        private void tbPower_TextChanged(object sender, EventArgs e)
+        {
+            Game.ship.maxPower = Convert.ToInt32(tbPower.Text);
         }
     }
 }

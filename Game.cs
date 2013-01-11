@@ -9,15 +9,12 @@ using System.Windows.Forms;
 using SFML;
 using SFML.Graphics;
 using SFML.Window;
+
+using HtmlAgilityPack;
 //using Gwen;
 namespace FTLShipEdit
 {
 
-    public class Gibs
-    {
-        Texture img;
-        Vector2f pos;
-    }
     public class GuiButton
     {
 
@@ -62,6 +59,45 @@ namespace FTLShipEdit
 
     }
 
+    public enum Slide
+    {
+        No = 0,
+        Up,
+        Down,
+        Left,
+        Right,
+    }
+
+    public struct WeaponMount
+    {
+        public int x;      // xpos of weapon
+        public int y;      // y pos of weapon
+        public bool rotate; // True - turns weapon 90 degrees clockwise (t = right, f = up)
+        public bool mirror;  // Flips weapon horizontally
+        public int gib; // gib chunk to attach to
+        public Slide slide; // Direction weapon moves when powered
+
+    }
+
+    public struct Gib
+    {
+        public Vector2f velocity; // Min/Max - Speed of movement
+        public Vector2f direction; //Min/Max - Direction of movement
+        public Vector2f angular; // Min/Max - Spin on movement
+        public int x; // horiz offset
+        public int y; // vert offset
+    }
+
+    public struct ShipLayoutData
+    {
+        public int X_OFFSET;
+        public int Y_OFFSET;
+        public int VERTICAL;
+        public int SHIELDWIDTH;
+        public int SHIELDHEIGHT;
+        public int SHIELDX;
+        public int SHIELDY;
+    }
 
     public class Ship
     {
@@ -82,9 +118,14 @@ namespace FTLShipEdit
             weapons = new WeaponBlueprints[4];
             drones = new DroneBlueprint[4];
             augments = new AugmentBlueprint[4];
+
+            mounts = new List<WeaponMount>();
+            gibs = new List<Gib>();
         }
 
-
+        public ShipLayoutData LayoutData;
+        public List<WeaponMount> mounts;
+        public List<Gib> gibs;
         public string id;
         public string img;
         public string layout;
@@ -197,8 +238,11 @@ namespace FTLShipEdit
         public static Ship ship;
         Sprite ViewOffsetter;
         List<RoomFunc> roomFuncs;
-        public static Vector2f Offset;
-        Vector2f bgOffset = new Vector2f(0, 0);
+        //public static Vector2f Offset;
+
+
+        Vector2f bgOffset = new Vector2f(0, 0); // This is the offset for the background image.
+
         Vector2f bgSize = new Vector2f(0, 0);
         int GUIStartX = 670;
         List<FTLRoom> ShipRooms = new List<FTLRoom>();
@@ -344,12 +388,12 @@ namespace FTLShipEdit
             placeRoomWeapons.Draw(t, false);
             if (BaseTex != null && drawBase)
             {
-                BaseTex.Position = bgOffset + (Offset * 35);
+                BaseTex.Position = bgOffset + (new Vector2f(Game.ship.LayoutData.X_OFFSET, Game.ship.LayoutData.Y_OFFSET) * 35);
                 BaseTex.Draw(t, RenderStates.Default);
             }
             if (FloorTex != null && drawFloor)
             {
-                FloorTex.Position = bgOffset + (Offset * 35);
+                FloorTex.Position = bgOffset + (new Vector2f(Game.ship.LayoutData.X_OFFSET, Game.ship.LayoutData.Y_OFFSET) * 35);
                 FloorTex.Draw(t, RenderStates.Default);
             }
 
@@ -380,7 +424,7 @@ namespace FTLShipEdit
                         continue;
                     Sprite temp = new Sprite(rf.image);
                     temp.Position = new Vector2f((rf.location.position.X + (((float)rf.location.size.X - 1) / 2)) * 35, (rf.location.position.Y + (((float)rf.location.size.Y - 1) / 2)) * 35);
-                    temp.Position += (Game.Offset * 35);
+                    temp.Position += (new Vector2f(Game.ship.LayoutData.X_OFFSET, Game.ship.LayoutData.Y_OFFSET) * 35);
                     t.Draw(temp);
                     temp.Dispose();
                 }
@@ -488,8 +532,47 @@ namespace FTLShipEdit
 
             return null;
         }
+        void ReadGibs(HtmlNode Explosion)
+        {
+            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+
+            string HTML = Explosion.InnerHtml;
+            HTML = HTML.Replace("gib1", "gib");
+            HTML = HTML.Replace("gib2", "gib");
+            HTML = HTML.Replace("gib3", "gib");
+            HTML = HTML.Replace("gib4", "gib");
+            HTML = HTML.Replace("gib5", "gib");
+            HTML = HTML.Replace("gib6", "gib");
+            doc.LoadHtml(HTML);
 
 
+            HtmlNodeCollection gibNodes = doc.DocumentNode.SelectNodes(".//gib");
+
+            foreach (HtmlNode gibNode in gibNodes)
+            {
+
+                //if (gibNode == null)
+                //return null;
+
+                Gib gib;
+
+
+                gib.velocity = new Vector2f((float)Convert.ToDouble(gibNode.SelectSingleNode(".//velocity").GetAttributeValue("min", "0")),
+                                            (float)Convert.ToDouble(gibNode.SelectSingleNode(".//velocity").GetAttributeValue("max", "0")));
+                gib.direction = new Vector2f((float)Convert.ToDouble(gibNode.SelectSingleNode(".//direction").GetAttributeValue("min", "0")),
+                                            (float)Convert.ToDouble(gibNode.SelectSingleNode(".//direction").GetAttributeValue("max", "0")));
+                gib.angular = new Vector2f((float)Convert.ToDouble(gibNode.SelectSingleNode(".//angular").GetAttributeValue("min", "0")),
+                                            (float)Convert.ToDouble(gibNode.SelectSingleNode(".//angular").GetAttributeValue("max", "0")));
+
+                gib.x = Convert.ToInt32(gibNode.SelectSingleNode("x").InnerText);
+                gib.y = Convert.ToInt32(gibNode.SelectSingleNode("y").InnerText);
+
+                ship.gibs.Add(gib);
+            }
+            //ship.gibs.Add(gib);
+            //return gib;
+
+        }
 
         public void ImportShip(string layout, string img)
         {
@@ -583,37 +666,63 @@ namespace FTLShipEdit
         }
         public void ImportXML(string path)
         {
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.ConformanceLevel = ConformanceLevel.Fragment;
-            settings.ValidationType = ValidationType.None;
+            HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
+            htmlDoc.OptionFixNestedTags = true;
+            htmlDoc.OptionAutoCloseOnEnd = true;
 
+            htmlDoc.Load(path);//OptionsForm.dataPath + "\\data\\blueprints.xml");
 
-
-
-            using (XmlReader reader = XmlReader.Create(path, settings))
+            // ParseErrors is an ArrayList containing any errors from the Load statement
+            if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Count() > 0)
             {
-                while (reader.Read())
+                // Handle any parse errors as required
+                foreach (HtmlParseError error in htmlDoc.ParseErrors)
                 {
-                    reader.ReadToFollowing("img");
-                    int x = Convert.ToInt32(reader.GetAttribute("x"));
-                    int y = Convert.ToInt32(reader.GetAttribute("y"));
-                    int w = Convert.ToInt32(reader.GetAttribute("w"));
-                    int h = Convert.ToInt32(reader.GetAttribute("h"));
-                    bgOffset = new Vector2f(x, y);
-                    bgOffset = new Vector2f(x, y);
-                    bgSize = new Vector2f(w, h);
-
-
-                    //if (img != "")
-                    //{
-                    if (BaseTex != null)
-                        BaseTex.Position = bgOffset;
-                    if (FloorTex != null)
-                        FloorTex.Position = bgOffset;
-                    // }
-                    break;
+                    Console.WriteLine(error.ToString());
                 }
             }
+
+
+            // Read image offset
+            HtmlNode img = htmlDoc.DocumentNode.SelectSingleNode("img");
+            int x = Convert.ToInt32(img.GetAttributeValue("x", "0"));
+            int y = Convert.ToInt32(img.GetAttributeValue("y", "0"));
+            int w = Convert.ToInt32(img.GetAttributeValue("w", "0"));
+            int h = Convert.ToInt32(img.GetAttributeValue("h", "0"));
+            bgOffset = new Vector2f(x, y);
+            bgSize = new Vector2f(w, h);
+
+
+
+            if (htmlDoc.DocumentNode != null)
+            {
+                HtmlNodeCollection mounts = htmlDoc.DocumentNode.SelectSingleNode("weaponmounts").SelectNodes("//mount");
+
+                if (mounts != null)
+                {
+                    // Load mounts
+                    foreach (HtmlNode node in mounts)
+                    {
+                        WeaponMount mount = new WeaponMount();
+                        mount.x = Convert.ToInt32(node.GetAttributeValue("x", "0"));
+                        mount.y = Convert.ToInt32(node.GetAttributeValue("y", "0"));
+                        mount.rotate = Convert.ToBoolean(node.GetAttributeValue("rotate", "false"));
+                        mount.mirror = Convert.ToBoolean(node.GetAttributeValue("mirror", "false"));
+                        mount.gib = Convert.ToInt32(node.GetAttributeValue("gib", "0"));
+                        mount.slide = (Slide)Enum.Parse(typeof(Slide), node.GetAttributeValue("slide", "no"), true);
+                        ship.mounts.Add(mount);
+                    }
+                }
+
+                HtmlNode explosion = htmlDoc.DocumentNode.SelectSingleNode("explosion");
+
+                if (explosion != null)
+                {
+                    ReadGibs(explosion);
+                }
+
+            }
+            
         }
         public void ImportLayout(string path)
         {
@@ -628,9 +737,19 @@ namespace FTLShipEdit
             while ((line = tr.ReadLine()) != null)
             {
                 if (line == "X_OFFSET")
-                    Offset.X = Convert.ToInt32(tr.ReadLine());
+                    ship.LayoutData.X_OFFSET = Convert.ToInt32(tr.ReadLine());
                 if (line == "Y_OFFSET")
-                    Offset.Y = Convert.ToInt32(tr.ReadLine());
+                    ship.LayoutData.Y_OFFSET = Convert.ToInt32(tr.ReadLine());
+
+                if (line == "VERTICAL")
+                    ship.LayoutData.VERTICAL = Convert.ToInt32(tr.ReadLine());
+                if (line == "ELLIPSE")
+                {
+                    ship.LayoutData.SHIELDWIDTH = Convert.ToInt32(tr.ReadLine());
+                    ship.LayoutData.SHIELDHEIGHT = Convert.ToInt32(tr.ReadLine());
+                    ship.LayoutData.SHIELDX = Convert.ToInt32(tr.ReadLine());
+                    ship.LayoutData.SHIELDY = Convert.ToInt32(tr.ReadLine());
+                }
 
                 if (line == "ROOM")
                 {
@@ -701,8 +820,22 @@ namespace FTLShipEdit
             tw.WriteLine(imgLine);
 
             tw.WriteLine("<weaponMounts>");
+            foreach (WeaponMount mount in ship.mounts)
+            {
+                tw.WriteLine("<mount x=\"" + mount.x + "\" y=\"" + mount.y + "\" rotate=\"" + mount.rotate.ToString().ToLower() + "\" mirror=\"" + mount.mirror.ToString().ToLower() + "\" gib=\"" + mount.gib.ToString() + "\" slide=\"" + mount.slide.ToString().ToLower()  + "\"/>");
+            }
             tw.WriteLine("</weaponMounts>");
             tw.WriteLine("<explosion>");
+            for (int i = 1; i <= ship.gibs.Count; i++)
+            {
+                tw.WriteLine("<gib" + i.ToString() + ">");
+                tw.WriteLine("<velocity min=\"" + ship.gibs[i - 1].velocity.X.ToString() + "\" max=\"" + ship.gibs[i - 1].velocity.Y.ToString() + "\"/>");
+                tw.WriteLine("<direction min=\"" + ship.gibs[i - 1].direction.X.ToString() + "\" max=\"" + ship.gibs[i - 1].direction.Y.ToString() + "\"/>");
+                tw.WriteLine("<angular min=\"" + ship.gibs[i - 1].angular.X.ToString() + "\" max=\"" + ship.gibs[i - 1].angular.Y.ToString() + "\"/>");
+                tw.WriteLine("<x>" + ship.gibs[i - 1].x.ToString() + "</x>");
+                tw.WriteLine("<y>" + ship.gibs[i - 1].y.ToString() + "</y>");
+                tw.WriteLine("</gib" + i.ToString() + ">");
+            }
             tw.WriteLine("</explosion>");
 
             tw.WriteLine();
@@ -720,16 +853,16 @@ namespace FTLShipEdit
 
             // write a line of text to the file
             tw.WriteLine("X_OFFSET");
-            tw.WriteLine(Offset.X.ToString());
+            tw.WriteLine(ship.LayoutData.X_OFFSET.ToString());
             tw.WriteLine("Y_OFFSET");
-            tw.WriteLine(Offset.Y.ToString());
+            tw.WriteLine(ship.LayoutData.Y_OFFSET.ToString());
             tw.WriteLine("VERTICAL");
-            tw.WriteLine("0");
+            tw.WriteLine(ship.LayoutData.VERTICAL.ToString());
             tw.WriteLine("ELLIPSE");
-            tw.WriteLine("200");
-            tw.WriteLine("200");
-            tw.WriteLine("0");
-            tw.WriteLine("0");
+            tw.WriteLine(ship.LayoutData.SHIELDWIDTH.ToString());
+            tw.WriteLine(ship.LayoutData.SHIELDHEIGHT.ToString());
+            tw.WriteLine(ship.LayoutData.SHIELDX.ToString());
+            tw.WriteLine(ship.LayoutData.SHIELDY.ToString());
 
             int roomCount = 0;
             foreach (FTLRoom room in ShipRooms)
@@ -1340,22 +1473,24 @@ namespace FTLShipEdit
 
                 if (Math.Abs(Xdif) + Math.Abs(Ydif) < 10)
                 {
-                    Offset = new Vector2f(0, 0);
+                    //   Offset = new Vector2f(0, 0);
+                    Game.ship.LayoutData.X_OFFSET = 0;
+                    Game.ship.LayoutData.Y_OFFSET = 0;
                 }
                 else
                     if (Math.Abs(Xdif) > Math.Abs(Ydif))
                     {
                         if (Xdif > 0)
-                            Offset -= new Vector2f(1, 0);
+                            Game.ship.LayoutData.X_OFFSET -= 1;
                         else
-                            Offset += new Vector2f(1, 0);
+                            Game.ship.LayoutData.X_OFFSET += 1;
                     }
                     else
                     {
                         if (Ydif > 0)
-                            Offset -= new Vector2f(0, 1);
+                            Game.ship.LayoutData.Y_OFFSET -= 1;
                         else
-                            Offset += new Vector2f(0, 1);
+                            Game.ship.LayoutData.Y_OFFSET += 1;
                     }
 
             }
@@ -1364,7 +1499,7 @@ namespace FTLShipEdit
         public void Update()
         {
             Vector2i mouseScreenPos = Mouse.GetPosition(Program.app);
-            Vector2i mouseActualPos = Mouse.GetPosition(Program.app) - new Vector2i((int)Game.Offset.X * 35, (int)Game.Offset.Y * 35);
+            Vector2i mouseActualPos = Mouse.GetPosition(Program.app) - new Vector2i((int)Game.ship.LayoutData.X_OFFSET * 35, (int)Game.ship.LayoutData.Y_OFFSET * 35);
 
             switch (cursorMode)
             {
@@ -1565,7 +1700,7 @@ namespace FTLShipEdit
                     }
                     break;
                 case CursorMode.PlaceBGCursor:
-                    bgOffset = new Vector2f((int)mouseScreenPos.X - Offset.X * 35, (int)mouseScreenPos.Y - Offset.Y * 35);
+                    bgOffset = new Vector2f((int)mouseScreenPos.X - Game.ship.LayoutData.X_OFFSET * 35, (int)mouseScreenPos.Y - Game.ship.LayoutData.Y_OFFSET * 35);
                     bgOffset -= new Vector2f(BaseTex.TextureRect.Width / 2, BaseTex.TextureRect.Height / 2);
                     if (Mouse.IsButtonPressed(Mouse.Button.Left) && lastLMBState == false)
                     {

@@ -110,5 +110,12 @@ namespace FTLShipEdit
         {
             System.Diagnostics.Process.Start("http://www.ftlgame.com/forum/viewtopic.php?f=4&t=2788");
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+
+            UpdatePaths();
+            this.Close();
+        }
     }
 }

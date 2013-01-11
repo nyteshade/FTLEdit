@@ -151,6 +151,10 @@
             this.label38 = new System.Windows.Forms.Label();
             this.label37 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
+            this.label44 = new System.Windows.Forms.Label();
+            this.label45 = new System.Windows.Forms.Label();
+            this.tbHealth = new System.Windows.Forms.TextBox();
+            this.tbPower = new System.Windows.Forms.TextBox();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -316,6 +320,10 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.tbPower);
+            this.groupBox3.Controls.Add(this.tbHealth);
+            this.groupBox3.Controls.Add(this.label45);
+            this.groupBox3.Controls.Add(this.label44);
             this.groupBox3.Controls.Add(this.tbDesc);
             this.groupBox3.Controls.Add(this.tbName);
             this.groupBox3.Controls.Add(this.tbClass);
@@ -1414,6 +1422,40 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
+            // label44
+            // 
+            this.label44.AutoSize = true;
+            this.label44.Location = new System.Drawing.Point(243, 16);
+            this.label44.Name = "label44";
+            this.label44.Size = new System.Drawing.Size(41, 13);
+            this.label44.TabIndex = 17;
+            this.label44.Text = "Health:";
+            // 
+            // label45
+            // 
+            this.label45.AutoSize = true;
+            this.label45.Location = new System.Drawing.Point(215, 37);
+            this.label45.Name = "label45";
+            this.label45.Size = new System.Drawing.Size(63, 13);
+            this.label45.TabIndex = 18;
+            this.label45.Text = "Max Power:";
+            // 
+            // tbHealth
+            // 
+            this.tbHealth.Location = new System.Drawing.Point(290, 11);
+            this.tbHealth.Name = "tbHealth";
+            this.tbHealth.Size = new System.Drawing.Size(113, 20);
+            this.tbHealth.TabIndex = 19;
+            this.tbHealth.TextChanged += new System.EventHandler(this.tbHealth_TextChanged);
+            // 
+            // tbPower
+            // 
+            this.tbPower.Location = new System.Drawing.Point(290, 34);
+            this.tbPower.Name = "tbPower";
+            this.tbPower.Size = new System.Drawing.Size(113, 20);
+            this.tbPower.TabIndex = 20;
+            this.tbPower.TextChanged += new System.EventHandler(this.tbPower_TextChanged);
+            // 
             // ShipProperties
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1606,5 +1648,9 @@
         private System.Windows.Forms.Label label38;
         private System.Windows.Forms.Label label37;
         private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.TextBox tbPower;
+        private System.Windows.Forms.TextBox tbHealth;
+        private System.Windows.Forms.Label label45;
+        private System.Windows.Forms.Label label44;
     }
 }
